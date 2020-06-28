@@ -1,3 +1,5 @@
+![Screenshot](./screenshot.jpg)
+
 # OpenGLCameraEffects
 Camera effects like chromatic aberration, vignetting, depth of field and barrel distortion.
 

@@ -22,4 +22,4 @@ build/.cmake
 build/*ninja*
 build/compile_commands.json
 lib
-*.blend[1-9]
+*.blend1
