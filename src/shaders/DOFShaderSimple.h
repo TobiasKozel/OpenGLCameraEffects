@@ -27,18 +27,13 @@ inline Shader &getDofShaderSimple() {
 		}
 	
 		void main() {
-			float centerDepth = texture(zBufferLinear, TexCoords).r;
+			float depth = texture(zBufferLinear, TexCoords).r;
 			
-			float blurSize = (centerDepth - focus) * 0.0002 * focusScale;
+			depth = (depth - focus) * 0.0002 * focusScale;
 			vec3 color = vec3(0);
 			for (int i = 0; i < iterations; i++) {
-				vec2 offset = rand2(TexCoords + i) * blurSize;
-				float depth = texture(zBufferLinear, TexCoords + offset).r;
-					color += texture(gColor, TexCoords + offset).rgb;
-				//if (depth > centerDepth) {
-				//	color += vec3(1.0);
-				//} else {
-				//}
+				vec2 offset = rand2(TexCoords + i) * depth;
+				color += texture(gColor, TexCoords + offset).rgb;
 			}
 			color /= float(iterations);
 			FragColor = vec4(color, 1.0);

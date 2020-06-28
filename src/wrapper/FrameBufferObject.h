@@ -68,7 +68,7 @@ public:
 			{ GREY, { "gGrey", GL_RED, GL_RED, GL_UNSIGNED_BYTE } },
 			{ GREYSOFT, { "gGreySoft", GL_RED, GL_RED, GL_UNSIGNED_BYTE, GL_LINEAR, GL_LINEAR } },
 			{ ZBUFFER, { "zBuffer", GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT, GL_FLOAT } },
-			{ ZBUFFERLINEAR, { "zBufferLinear", GL_R32F, GL_RED, GL_FLOAT } }
+			{ ZBUFFERLINEAR, { "zBufferLinear", GL_R16F, GL_RED, GL_FLOAT } }
 		};
 		return attachmentMap;
 	}
