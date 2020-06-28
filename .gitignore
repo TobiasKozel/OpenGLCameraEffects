@@ -1,0 +1,25 @@
+.vs/
+*.user
+*.exe
+*.ilk
+*.exp
+*.pdb
+.vscode
+*.sln
+*.vcxproj
+*.vcxproj.*
+
+# cmake bullshit
+CMakeFiles
+Makefile
+CMakeCache.txt
+cmake_install.cmake
+Debug
+dof_example*
+ALL_BUILD*
+build/external
+build/.cmake
+build/*ninja*
+build/compile_commands.json
+lib
+*.blend[1-9]
