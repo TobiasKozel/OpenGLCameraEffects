@@ -11,13 +11,14 @@ name(name&&) = delete; \
 name& operator= (const name&) = delete; \
 name& operator= (name&&) = delete;
 
-float clamp(float v, float min, float max) {
+template <typename T>
+inline T clamp(const T v, const T min, const T max) {
     return std::max(min, std::min(v, max));
 }
 
-std::string platformPath(std::string path) {
-    if (path.find(":/") != std::string::npos || path.find("/") == 0) {
-        return path;
+inline std::string platformPath(std::string path) {
+    if (path.find(":/") != std::string::npos || path.find('/') == 0) {
+        return path; // Don't touch absolute paths
     }
     #ifdef ASSET_PATH
         return ASSET_PATH + path;

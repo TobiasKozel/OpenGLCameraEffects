@@ -9,6 +9,7 @@ struct Event {
 		LEFT,
 		RIGHT,
 		ZOOM,
+		RESET_TEST_CAM,
 		EVENTCOUNT
 	} type;
 	float x = 0;

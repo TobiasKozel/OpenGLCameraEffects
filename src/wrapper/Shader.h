@@ -13,7 +13,6 @@
 
 #define GLSL(shader)  "#version 330 core\n" #shader
 
-
 class Shader {
     GLuint sId;
 

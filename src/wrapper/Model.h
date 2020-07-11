@@ -134,9 +134,11 @@ private:
                     vertex.Normal.x = attrib.normals[0 + 3 * idx.normal_index];
                     vertex.Normal.y = attrib.normals[1 + 3 * idx.normal_index];
                     vertex.Normal.z = attrib.normals[2 + 3 * idx.normal_index];
-                    vertex.TexCoords.x = attrib.texcoords[0 + 2 * idx.texcoord_index];
-                    // For some reason the v coordinate needs to be flipped
-                    vertex.TexCoords.y = 1 - attrib.texcoords[1 + 2 * idx.texcoord_index];
+                	if (idx.texcoord_index != -1) {
+						vertex.TexCoords.x = attrib.texcoords[0 + 2 * idx.texcoord_index];
+	                    // For some reason the v coordinate needs to be flipped
+	                    vertex.TexCoords.y = 1 - attrib.texcoords[1 + 2 * idx.texcoord_index];
+                	}
                     vertices.push_back(vertex);
                     indices.push_back(vertexIndex + v); // well that's kinda useless
                 }

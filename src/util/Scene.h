@@ -9,7 +9,7 @@ class Scene {
 protected:
 	Camera& camera = getDefaultCam();
 
-	float width, height;
+	float width = 0.f, height = 0.f;
 
 public:
     Scene() { }

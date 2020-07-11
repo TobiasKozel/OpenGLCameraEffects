@@ -21,19 +21,10 @@ inline Shader& getDOFShaderAdvanced() {
 
 		const float GOLDEN_ANGLE = 2.39996323;
 		const float MAX_BLUR_SIZE = 20.0;
-		const float RAD_SCALE = 2.0; // Smaller = nicer blur, larger = faster
 
 		float getBlurSize(float depth, float focusPoint, float focusScale) {
 			float coc = clamp((1.0 / focusPoint - 1.0 / depth) * focusScale, -1.0, 1.0);
 			return abs(coc) * MAX_BLUR_SIZE;
-		}
-
-		float rand(vec2 co) {
-			return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
-		}
-
-		vec2 rand2(vec2 co) {
-			return vec2(rand(co), rand(co * 20.0)) * 2.0 - 1.0;
 		}
 
 		vec3 depthOfField(float focusPoint, float focusScale) {
@@ -41,12 +32,13 @@ inline Shader& getDOFShaderAdvanced() {
 			float centerSize = getBlurSize(centerDepth, focusPoint, focusScale);
 			vec3 color = texture(gColor, TexCoords).rgb;
 			float tot = 1.0;
-
+			
+			// Smaller = nicer blur, larger = faster. Will roughly reach the max blur size with the samples given
+			float RAD_SCALE = 12.5 / (float(iterations) + 11.0) * MAX_BLUR_SIZE; 
 			float radius = RAD_SCALE;
 			float ang = 0.0;
 			for (int i = 0; i < iterations; i++) {
-				// vec2 tc = TexCoords + vec2(cos(ang), sin(ang)) * pixelSize * radius;
-				vec2 tc = TexCoords + rand2(TexCoords + vec2(i , -i)) * pixelSize * radius;
+				vec2 tc = TexCoords + vec2(cos(ang), sin(ang)) * pixelSize * radius;
 
 				vec3 sampleColor = texture(gColor, tc).rgb;
 				float sampleDepth = texture(zBufferLinear, tc).r;
@@ -61,7 +53,6 @@ inline Shader& getDOFShaderAdvanced() {
 				tot += 1.0;
 				radius += RAD_SCALE / radius;
 				ang += GOLDEN_ANGLE;
-				if (radius > MAX_BLUR_SIZE) { break; }
 			}
 			return color /= tot;
 		}
@@ -72,3 +63,4 @@ inline Shader& getDOFShaderAdvanced() {
 	), __FILE__ };
 	return shader;
 }
+

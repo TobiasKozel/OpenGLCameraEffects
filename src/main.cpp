@@ -19,7 +19,6 @@
 void resizeCallback(GLFWwindow* window, int width, int height);
 void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
 
 GLFWwindow* window = nullptr;
 int width = 1280;
@@ -43,6 +42,7 @@ std::map<int, EventValue> keyMap = {
     { GLFW_KEY_S, {Event::BACKWARD } },
     { GLFW_KEY_A, {Event::LEFT } },
     { GLFW_KEY_D, {Event::RIGHT } },
+    { GLFW_KEY_J, {Event::RESET_TEST_CAM } },
 };
 
 void init() {
@@ -102,7 +102,7 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
     	
-        glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+        glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (scene != nullptr) {
@@ -110,7 +110,9 @@ int main() {
         }
 
         glfwPollEvents();
-        
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(window, true);
+        }
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -124,7 +126,11 @@ int main() {
         	if (io.WantCaptureMouse) {
                 queue.clear(); // If imgui handles the event, we'll clear the queue
         	} else {
-                processInput(window);
+                for (auto& i : keyMap) {
+                    if (glfwGetKey(window, i.first) == GLFW_PRESS) {
+                        queue.push_back({ i.second.type, 0.0, i.second.value });
+                    }
+                }
         	}
             scene->update(queue, deltaTime);
             queue.clear();
@@ -147,18 +153,6 @@ int main() {
 
     glfwTerminate();
     return 0;
-}
-
-void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-
-    for (auto& i : keyMap) {
-        if (glfwGetKey(window, i.first) == GLFW_PRESS) {
-            queue.push_back({ i.second.type, 0.0, i.second.value });
-        }
-    }
 }
 
 void resizeCallback(GLFWwindow* window, int w, int h) {
