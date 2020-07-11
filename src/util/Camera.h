@@ -5,12 +5,12 @@
 
 class Camera {
 public:
-    float fieldOfView = 45; // Fov in degrees
+    float fieldOfView = 53.1; // Fov in degrees
     float focusDistance = 14.0; // focus distance in linear space
 	float focusScale = 1.0; // Strength of the depth of field
     int dofSamples = 32; //  samples per pixel
 
-    float vignetteStrength = 0.95;
+    float vignetteStrength = 0.2;
     float vignetteFalloff = 3.0;
 	float aspectRatio = 1.0;
     float vignetteDesaturation = 0.0;

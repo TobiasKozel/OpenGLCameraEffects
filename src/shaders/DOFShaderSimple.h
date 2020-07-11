@@ -29,11 +29,11 @@ inline Shader &getDofShaderSimple() {
 		void main() {
 			float depth = texture(zBufferLinear, TexCoords).r;
 			
-			depth = (depth - focus) * 0.0002 * focusScale;
+			depth = (depth - focus) * 0.05 * focusScale;
 			vec3 color = vec3(0);
 			for (int i = 0; i < iterations; i++) {
-				vec2 offset = rand2(TexCoords + i) * depth;
-				color += texture(gColor, TexCoords + offset).rgb;
+				vec2 offset = rand2(TexCoords + i) * depth ;
+				color += texture(gColor, TexCoords + offset * pixelSize).rgb;
 			}
 			color /= float(iterations);
 			FragColor = vec4(color, 1.0);

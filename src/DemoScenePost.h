@@ -20,7 +20,6 @@
 
 class DemoScenePost : public Scene {
 	
-	// Model sceneModel = { "assets/littlest_tokyo/scene.gltf" };
 	Shader &gShader = getGBufferShader();
 	Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
 	Quad billboard;
@@ -58,7 +57,7 @@ class DemoScenePost : public Scene {
 	float debugScale = 1.0;
 public:
 	DemoScenePost(int w, int h) {
-		camera = getSkateboardCam();
+		// camera = getSkateboardCam();
 		DemoScenePost::onResize(w, h);
 	}
 
@@ -178,7 +177,7 @@ public:
 			if (ImGui::TreeNode("Depth of Field")) {
 				ImGui::SliderFloat(
 					"Focus distance", &camera.focusDistance, 
-					camera.nearPlane, camera.farPlane
+					camera.nearPlane, 25
 				);
 				ImGui::SliderFloat("Focus Scale", &camera.focusScale, 0.0f, 30.0f);
 				helpMaker("Strength of the depth of field");

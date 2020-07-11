@@ -68,7 +68,7 @@ void init() {
     glfwSetFramebufferSizeCallback(window, resizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetScrollCallback(window, scrollCallback);
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
 
     if (!gladLoadGL()) {
         std::cout << "Error loading glad!\n";
