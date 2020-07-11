@@ -52,7 +52,8 @@ inline Shader& getDeferredShader() {
 			color.rgb *= blurredSSAO();
 			outColor = color;
 
-			outZBufferLinear = linearDepth(texture(zBuffer, TexCoords).r);
+			// outZBufferLinear = linearDepth(texture(zBuffer, TexCoords).r);
+			outZBufferLinear = texture(gPosition, TexCoords).z;
 		}
 	), __FILE__ };
 	return shader;

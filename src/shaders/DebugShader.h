@@ -2,6 +2,9 @@
 
 #include "../wrapper/Shader.h"
 
+/**
+ * Simple shader to look at the FBOs and the red channel on its own
+ */
 inline Shader& getDebugShader() {
 	static Shader shader = { Shader::getBillboardVertexShader(), GLSL(
 		out vec4 FragColor;

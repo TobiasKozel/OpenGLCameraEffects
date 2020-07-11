@@ -12,6 +12,7 @@
 #include "shaders/GBufferShader.h"
 #include "shaders/DOFShaderSimple.h"
 #include "shaders/DOFShaderAdvanced.h"
+#include "shaders/DOFShaderTest.h"
 #include "shaders/SSAOShader.h"
 #include "shaders/DeferredShader.h"
 #include "shaders/PostShader.h"
@@ -26,11 +27,12 @@ class DemoScenePost : public Scene {
 	Quad billboard;
 	Shader& dofSimpleShader = getDofShaderSimple();
 	Shader& dofAdvancedShader = getDOFShaderAdvanced();
+	Shader& dofTestShader = getDofShaderTest();
 	Shader& ssaoShader = getSsaoShader();
 	Shader& deferredShader = getDeferredShader();
 	Shader& postShader = getPostShader();
 
-	Shader* currentDofShader = &dofSimpleShader;
+	Shader* currentDofShader = &dofTestShader;
 
 	FrameBufferObject gFbo = { {
 		FrameBufferObject::ZBUFFER, FrameBufferObject::POSITION,
@@ -192,12 +194,18 @@ public:
 				helpMaker("Depth of field samples per pixel");
 				
 				ImGui::Separator();
-				int e = currentDofShader == &dofSimpleShader ? 0 : 1;
+				int e = 0;
+				if (currentDofShader == &dofAdvancedShader) { e = 1; }
+				if (currentDofShader == &dofTestShader) { e = 2; }
 				ImGui::Text("Method");
 				ImGui::RadioButton("Simple", &e, 0); ImGui::SameLine();
 				helpMaker("Naive gather DOF without any optimizations to mitigate artifacts"); ImGui::SameLine();
-				ImGui::RadioButton("Advanced", &e, 1);;
-				currentDofShader = e == 0 ? &dofSimpleShader : &dofAdvancedShader;
+				ImGui::RadioButton("Advanced", &e, 1);
+				helpMaker("Test dof shader"); ImGui::SameLine();
+				ImGui::RadioButton("Test", &e, 2);
+				if (e == 0) { currentDofShader = &dofSimpleShader; }
+				if (e == 1) { currentDofShader = &dofAdvancedShader; }
+				if (e == 2) { currentDofShader = &dofTestShader; }
 				ImGui::TreePop();
 			}
 
