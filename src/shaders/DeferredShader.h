@@ -18,7 +18,6 @@ inline Shader& getDeferredShader() {
 		uniform sampler2D gNormal;
 		uniform sampler2D gColor;
 		uniform sampler2D gGreySoft; // The unblurred SSAO
-		uniform sampler2D zBuffer; // logarithmic depth buffer
 
 		uniform float zNear;
 		uniform float zFar;
@@ -28,12 +27,9 @@ inline Shader& getDeferredShader() {
 			return (2.0 * zNear) / (zFar + zNear - depthSample * (zFar - zNear)) * zFar;
 		}
 
-		float blurredSSAO() {
-			if (blur == 0) { // Skip the whole thing
+		float blurredSSAO(float depth) {
+			if (blur == 0) { // Skip the whole thing and return the unblurred ssao
 				return texture(gGreySoft, TexCoords).r;
-			}
-			if (texture(zBuffer, TexCoords).r == 1.0) {
-				return 1.0;  // Skip the sky, so there's no bleed
 			}
 			vec2 texelSize = 1.0 / vec2(textureSize(gGreySoft, 0));
 			float result = 0.0;
@@ -48,12 +44,13 @@ inline Shader& getDeferredShader() {
 		}
 
 		void main() {
+			outZBufferLinear = -texture(gPosition, TexCoords).z;
 			vec4 color = texture(gColor, TexCoords);
-			color.rgb *= blurredSSAO();
+			if (outZBufferLinear < zFar) {
+				// No ssao for the sky
+				color.rgb *= blurredSSAO(outZBufferLinear);
+			}
 			outColor = color;
-
-			// outZBufferLinear = linearDepth(texture(zBuffer, TexCoords).r);
-			outZBufferLinear = texture(gPosition, TexCoords).z;
 		}
 	), __FILE__ };
 	return shader;

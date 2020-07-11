@@ -35,7 +35,7 @@ class DemoScenePost : public Scene {
 	Shader* currentDofShader = &dofTestShader;
 
 	FrameBufferObject gFbo = { {
-		FrameBufferObject::ZBUFFER, FrameBufferObject::POSITION,
+		FrameBufferObject::POSITION,
 		FrameBufferObject::NORMAL, FrameBufferObject::COLOR,
 		FrameBufferObject::DEPTH,
 	} };
