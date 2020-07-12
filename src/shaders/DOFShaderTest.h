@@ -57,16 +57,6 @@ inline Shader& getDofShaderTest() {
 		}
 
 		float getBlurSize(float depth) {
-			float coc = clamp((1.0 / focus - 1.0 / depth) * focusScale, -1.0, 1.0);
-			return abs(coc) * MAX_BLUR_SIZE;
-		}
-
-		float calcCoc(float depth) {
-			float coc = (depth - focus) * focusScale;
-			return abs(coc);
-		}
-
-		float calcCoc2(float depth) {
 			float coc = clamp((1.0 / focus - 1.0 / depth), -1.0, 1.0);
 			return abs(coc) * focusScale;
 		}
@@ -83,28 +73,30 @@ inline Shader& getDofShaderTest() {
 
 			
 			float depth = texture(zBufferLinear, TexCoords).r;
-			float coc = calcCoc(depth);
+			float coc = getBlurSize(depth);
 			
 			int iterationsX = int(floor(sqrt(float(iterations))));
-			float stepSize = 1.0f / float(iterationsX);
-			float steps = 0.0;
+			float stepSize = 2.0f / float(iterationsX);
+			float steps = 1.0;
 			for (float x = -1.0; x <= 1.0; x += stepSize) {
 				for (float y = -1.0; y <= 1.0; y += stepSize) {
-					vec2 offset = SquareToPolygonMapping(x, y, float(apertureBlades), 0.f);
-					vec2 uv = TexCoords + offset * pixelSize * focusScale;
-					vec3 scolor = texture(gColor, uv).rgb;
+					vec2 offset = SquareToPolygonMapping(x, y, float(apertureBlades), 0.f) * pixelSize * focusScale;
+					vec2 uv = TexCoords + offset;
 					float sdepth = texture(zBufferLinear, uv).r;
-					float scoc = calcCoc(sdepth);
-					//if (depth > sdepth) {
-					//	// continue;
+					float scoc = getBlurSize(sdepth);
+					//if (sdepth > depth) {
+					//	scoc = clamp(scoc, 0.0, coc * 2.0);
 					//}
-					float m = abs(coc - scoc);
+					
+					float m = clamp(scoc, 0.0, 1.0);
+					uv = TexCoords + offset * m;
+					vec3 scolor = texture(gColor, uv).rgb;
 					color += mix(color / steps, scolor, m);
 					//color += scolor;
-					steps++;
+					steps += 1.0;
 				}
 			}
-			// color /= float(steps);
+			color /= steps;
 			FragColor = vec4(color, 1.0);
 		}
 	), __FILE__ };

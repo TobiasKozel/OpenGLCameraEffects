@@ -3,8 +3,11 @@
 
 
 /**
- * Slightly alter versio nof this DOF Shader
+ * Slightly altered version of this DOF Shader
  * http://tuxedolabs.blogspot.com/2018/05/bokeh-depth-of-field-in-single-pass.html
+ * It's gathering surrounding samples in a spiral pattern
+ * and performs blending based on the coc of these samples
+ * which results in a smooth falloff
  */
 inline Shader& getDOFShaderAdvanced() {
 	static Shader shader = { Shader::getBillboardVertexShader(), GLSL(
@@ -32,7 +35,7 @@ inline Shader& getDOFShaderAdvanced() {
 			float centerDepth = texture(zBufferLinear, TexCoords).r;
 			float centerSize = getBlurSize(centerDepth);
 			vec3 color = texture(gColor, TexCoords).rgb;
-			float tot = 1.0;
+			float steps = 1.0;
 			
 			// Smaller = nicer blur, larger = faster. Will roughly reach the max blur size with the samples given
 			float RAD_SCALE = 12.5 / (float(iterations) + 11.0) * MAX_BLUR_SIZE; 
@@ -50,12 +53,13 @@ inline Shader& getDOFShaderAdvanced() {
 				}
 
 				float m = smoothstep(radius - 0.5, radius + 0.5, sampleSize);
-				color += mix(color / tot, sampleColor, m);
-				tot += 1.0;
+				color += mix(color / steps, sampleColor, m);
+				steps += 1.0;
 				radius += RAD_SCALE / radius;
 				ang += GOLDEN_ANGLE;
 			}
-			return color /= tot;
+			color /= steps;
+			return color;
 		}
 
 		void main() {

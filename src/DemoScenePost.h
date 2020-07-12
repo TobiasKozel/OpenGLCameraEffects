@@ -22,8 +22,8 @@
 class DemoScenePost : public Scene {
 	
 	Shader &gShader = getGBufferShader();
-	//Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
-	Model model = { platformPath("assets/test/test.obj") };
+	Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
+	//Model model = { platformPath("assets/test/test.obj") };
 	Quad billboard;
 	Shader& dofSimpleShader = getDofShaderSimple();
 	Shader& dofAdvancedShader = getDOFShaderAdvanced();

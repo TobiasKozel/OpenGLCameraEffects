@@ -3,11 +3,12 @@
 
 
 /**
- * Shader which will draw a billboard and assemble the g buffer
+ * Simple DOF
+ * Blurs the image with a blur size directly based of the circle of confusion
  */
 inline Shader &getDofShaderSimple() {
 	static Shader shader = { Shader::getBillboardVertexShader() , GLSL(
-		out vec4 FragColor;
+		out vec3 FragColor;
 		in vec2 TexCoords;
 
 		uniform sampler2D gColor; //Image to be processed
@@ -43,7 +44,7 @@ inline Shader &getDofShaderSimple() {
 				color += texture(gColor, TexCoords + offset * pixelSize).rgb;
 			}
 			color /= float(iterations);
-			FragColor = vec4(color, 1.0);
+			FragColor = color;
 		}
 	), __FILE__ };
 	return shader;
