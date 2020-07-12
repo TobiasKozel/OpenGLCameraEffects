@@ -5,8 +5,6 @@
 /**
  * Simple deferred shader which only filters and applies the SSAO
  * https://learnopengl.com/code_viewer_gh.php?code=src/5.advanced_lighting/9.ssao/9.ssao_blur.fs
- *
- * Also scales the zbuffer linearly to actual scale
  */
 inline Shader& getDeferredShader() {
 	static Shader shader = { Shader::getBillboardVertexShader(), GLSL(
@@ -22,10 +20,6 @@ inline Shader& getDeferredShader() {
 		uniform float zNear;
 		uniform float zFar;
 		uniform int blur = 4;
-
-		float linearDepth(float depthSample) {
-			return (2.0 * zNear) / (zFar + zNear - depthSample * (zFar - zNear)) * zFar;
-		}
 
 		float blurredSSAO(float depth) {
 			if (blur == 0) { // Skip the whole thing and return the unblurred ssao

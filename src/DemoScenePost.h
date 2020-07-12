@@ -22,7 +22,7 @@
 class DemoScenePost : public Scene {
 	
 	Shader &gShader = getGBufferShader();
-	// Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
+	//Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
 	Model model = { platformPath("assets/test/test.obj") };
 	Quad billboard;
 	Shader& dofSimpleShader = getDofShaderSimple();
@@ -107,6 +107,7 @@ public:
 
 		dofFbo.draw([&]() {
 			currentDofShader->use(deferredFbo.getTextures());
+			currentDofShader->setInt("apertureBlades", camera.apertureBlades);
 			currentDofShader->setInt("iterations", camera.dofSamples);
 			currentDofShader->setFloat("focus", camera.focusDistance);
 			currentDofShader->setFloat("focusScale", camera.focusScale);
@@ -165,7 +166,7 @@ public:
 			}
 		};
 		
-		if (ImGui::CollapsingHeader("Camera Settings")) {
+		if (ImGui::CollapsingHeader("Camera Settings"), ImGuiTreeNodeFlags_DefaultOpen) {
 			if (ImGui::TreeNode("General")) {
 				ImGui::SliderFloat("Aspect Ratio", &camera.aspectRatio, 0.1f, 4.f);
 				helpMaker("Aspect ratio to simulate effects of a round lens");
@@ -186,10 +187,12 @@ public:
 			if (ImGui::TreeNode("Depth of Field")) {
 				ImGui::SliderFloat(
 					"Focus distance", &camera.focusDistance, 
-					camera.nearPlane, 25.f
+					camera.nearPlane, 20
 				);
 				ImGui::SliderFloat("Focus Scale", &camera.focusScale, 0.0f, 30.0f);
 				helpMaker("Strength of the depth of field");
+				ImGui::SliderInt("Bokeh Edges", &camera.apertureBlades, 3, 14);
+				helpMaker("How many aperture blades the Bokeh has");
 				ImGui::SliderInt("Samples", &camera.dofSamples, 0, 512);
 				helpMaker("Depth of field samples per pixel");
 				

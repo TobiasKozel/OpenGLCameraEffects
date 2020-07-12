@@ -9,6 +9,7 @@ public:
     float focusDistance = 14.f; // focus distance in linear space
 	float focusScale = 1.f; // Strength of the depth of field
     int dofSamples = 32; //  samples per pixel
+    int apertureBlades = 5;
 
     float vignetteStrength = 0.2f;
     float vignetteFalloff = 3.0f;
@@ -110,8 +111,9 @@ inline Camera& getTestCam(bool reset = false) {
 	if (reset) { cam = Camera(); }
     cam.fieldOfView = 29.86f;
     cam.focusDistance = 6.f;
-    cam.focusScale = 10.f;
+    cam.focusScale = 40.f;
     cam.dispersionStrength = 0.f;
+    cam.farPlane = 9.f;
     cam.position = glm::vec3(0, 0, 6.f);
     return cam;
 }

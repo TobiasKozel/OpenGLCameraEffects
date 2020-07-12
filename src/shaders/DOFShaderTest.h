@@ -7,37 +7,105 @@ inline Shader& getDofShaderTest() {
 		in vec2 TexCoords;
 
 		uniform sampler2D gColor; //Image to be processed
-		uniform sampler2D zBufferLinear; //Linear depth, where 1.0 == far plane
+		uniform sampler2D zBufferLinear;
 		uniform vec2 pixelSize; //The size of a pixel: vec2(1.0/width, 1.0/height)
 
 		uniform float focus;
 		uniform float focusScale;
+		uniform int apertureBlades;
 		uniform int iterations = 64;
 
-		float rand(vec2 co) {
-			return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+		const float PI = 3.1415926f;
+		const float PI_OVER_2 = 1.5707963f;
+		const float PI_OVER_4 = 0.785398f;
+		const float EPSILON = 0.000001f;
+		const float MAX_BLUR_SIZE = 20.0;
+
+		vec2 UnitSquareToUnitDiskPolar(float a, float b) {
+			float radius;
+			float angle;
+			if (abs(a) > abs(b)) { // First region (left and right quadrants of the disk)
+				radius = a;
+				angle = b / (a + EPSILON) * PI_OVER_4;
+			} else { // Second region (top and botom quadrants of the disk)
+				radius = b;
+				angle = PI_OVER_2 - (a / (b + EPSILON) * PI_OVER_4);
+			}
+			if (radius < 0) { // Always keep radius positive
+				radius *= -1.0f;
+				angle += PI;
+			}
+			return vec2(radius, angle);
 		}
 
-		vec2 rand2(vec2 co) {
-			return vec2(rand(co), rand(co * 20.0)) * 2.0 - 1.0;
+		vec2 SquareToDiskMapping(float a, float b) {
+			vec2 PolarCoord = UnitSquareToUnitDiskPolar(a, b);
+			return vec2(PolarCoord.x * cos(PolarCoord.y), PolarCoord.x * sin(PolarCoord.y));
+		}
+
+		vec2 SquareToPolygonMapping(float a, float b, float edgeCount, float shapeRotation) {
+			vec2 PolarCoord = UnitSquareToUnitDiskPolar(a, b); // (radius, angle)
+
+			// Re-scale radius to match a polygon shape
+			PolarCoord.x *= cos(PI / edgeCount) /
+				cos(PolarCoord.y - (2.0f * PI / edgeCount) * floor((edgeCount * PolarCoord.y + PI) / 2.0f / PI));
+
+			// Apply a rotation to the polygon shape
+			PolarCoord.y += shapeRotation;
+
+			return vec2(PolarCoord.x * cos(PolarCoord.y), PolarCoord.x * sin(PolarCoord.y));
+		}
+
+		float getBlurSize(float depth) {
+			float coc = clamp((1.0 / focus - 1.0 / depth) * focusScale, -1.0, 1.0);
+			return abs(coc) * MAX_BLUR_SIZE;
+		}
+
+		float calcCoc(float depth) {
+			float coc = (depth - focus) * focusScale;
+			return abs(coc);
+		}
+
+		float calcCoc2(float depth) {
+			float coc = clamp((1.0 / focus - 1.0 / depth), -1.0, 1.0);
+			return abs(coc) * focusScale;
 		}
 
 		void main() {
-			float depth = texture(zBufferLinear, TexCoords).r;
-			if (abs(depth - focus) < 0.1) {
-				FragColor = vec4(vec3(1.0), 1.0);
-			} else {
-				FragColor = vec4(vec3(0.0), 1.0);
+			vec3 color = texture(gColor, TexCoords).rgb;
+			
+			if (iterations == 0) {
+				FragColor = vec4(color, 1.0);
+				return;
 			}
 
-			//depth = (depth - focus) * 0.075 * focusScale;
-			//vec3 color = vec3(0);
-			//for (int i = 0; i < iterations; i++) {
-			//	vec2 offset = rand2(TexCoords + i) * depth;
-			//	color += texture(gColor, TexCoords + offset * pixelSize).rgb;
-			//}
-			//color /= float(iterations);
-			//FragColor = vec4(color, 1.0);
+			vec2 uv = TexCoords;
+
+			
+			float depth = texture(zBufferLinear, TexCoords).r;
+			float coc = calcCoc(depth);
+			
+			int iterationsX = int(floor(sqrt(float(iterations))));
+			float stepSize = 1.0f / float(iterationsX);
+			float steps = 0.0;
+			for (float x = -1.0; x <= 1.0; x += stepSize) {
+				for (float y = -1.0; y <= 1.0; y += stepSize) {
+					vec2 offset = SquareToPolygonMapping(x, y, float(apertureBlades), 0.f);
+					vec2 uv = TexCoords + offset * pixelSize * focusScale;
+					vec3 scolor = texture(gColor, uv).rgb;
+					float sdepth = texture(zBufferLinear, uv).r;
+					float scoc = calcCoc(sdepth);
+					//if (depth > sdepth) {
+					//	// continue;
+					//}
+					float m = abs(coc - scoc);
+					color += mix(color / steps, scolor, m);
+					//color += scolor;
+					steps++;
+				}
+			}
+			// color /= float(steps);
+			FragColor = vec4(color, 1.0);
 		}
 	), __FILE__ };
 	return shader;
