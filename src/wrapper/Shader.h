@@ -47,14 +47,14 @@ public:
         if (!checkCompileErrors(sId, "PROGRAM", file)) { return; }
     }
 
-	void use(Textures textures) const {
+	void use(const Textures &textures) const {
         use(&textures);
     }
 
 	/**
 	 * Use the shaders and make the textures usable in the shader if needed
 	 */
-    void use(Textures* textures = nullptr) const {
+    void use(const Textures* textures = nullptr) const {
     	/**
     	 * The currently active program
     	 * Used to avoid switching shader if not needed

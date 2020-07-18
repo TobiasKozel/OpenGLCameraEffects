@@ -58,7 +58,7 @@ inline Shader& getDOFShaderAdvanced() {
 				radius += RAD_SCALE / radius;
 				ang += GOLDEN_ANGLE;
 			}
-			color /= steps;
+			//color /= steps;
 			return color;
 		}
 

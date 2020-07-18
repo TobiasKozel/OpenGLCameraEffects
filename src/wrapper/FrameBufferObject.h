@@ -196,11 +196,11 @@ public:
 		return tex;
 	}
 
-	Textures getTexture(int index) {
+	Textures getTexture(const int index) {
 		return { textures[index] };
 	}
 
-	Textures getTextures() {
+	const Textures &getTextures() const {
 		return textures;
 	}
 

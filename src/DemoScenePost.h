@@ -22,8 +22,8 @@
 class DemoScenePost : public Scene {
 	
 	Shader &gShader = getGBufferShader();
-	Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
-	//Model model = { platformPath("assets/test/test.obj") };
+	//Model model = { platformPath("assets/littlest_tokyo/scene.obj") };
+	Model model = { platformPath("assets/test/test.obj") };
 	Quad billboard;
 	Shader& dofSimpleShader = getDofShaderSimple();
 	Shader& dofAdvancedShader = getDOFShaderAdvanced();
@@ -56,7 +56,7 @@ class DemoScenePost : public Scene {
 	int ssaoSamples = 32, ssaoBlur = 1;
 
 	std::shared_ptr<Texture> debugFbo = nullptr;
-	bool debugRed = false;
+	bool debugRed = false, postPass = true;
 	float debugScale = 1.f;
 public:
 	DemoScenePost(int w, int h) {
@@ -105,7 +105,7 @@ public:
 			billboard.draw();
 		});
 
-		dofFbo.draw([&]() {
+		const auto renderDof = [&]() {
 			currentDofShader->use(deferredFbo.getTextures());
 			currentDofShader->setInt("apertureBlades", camera.apertureBlades);
 			currentDofShader->setInt("iterations", camera.dofSamples);
@@ -114,26 +114,44 @@ public:
 			currentDofShader->setVec2(
 				"pixelSize", 1.f / float(width), 1.f / float(height)
 			);
+			currentDofShader->setFloat("vignetteStrength", camera.vignetteStrength);
+			currentDofShader->setFloat("vignetteFalloff", camera.vignetteFalloff);
+			currentDofShader->setFloat("aspectRatio", camera.aspectRatio);
+			currentDofShader->setFloat("vignetteDesaturation", camera.vignetteDesaturation);
+			currentDofShader->setFloat("dispersion", camera.dispersionStrength);
+			currentDofShader->setFloat("dispersionFalloff", camera.dispersionFalloff);
+			currentDofShader->setFloat("barrelDistortionFalloff", camera.barrelDistortionFalloff);
+			currentDofShader->setFloat("barrelDistortion", camera.barrelDistortion);
+			currentDofShader->setFloat("crop", camera.sensorCrop);
 			billboard.draw();
-		});
+		};
 
-		if (debugFbo == nullptr) {
-			postShader.use(dofFbo.getTextures());
-			postShader.setFloat("vignetteStrength", camera.vignetteStrength);
-			postShader.setFloat("vignetteFalloff", camera.vignetteFalloff);
-			postShader.setFloat("aspectRatio", camera.aspectRatio);
-			postShader.setFloat("vignetteDesaturation", camera.vignetteDesaturation);
-			postShader.setFloat("dispersion", camera.dispersionStrength);
-			postShader.setFloat("dispersionFalloff", camera.dispersionFalloff);
-			postShader.setFloat("barrelDistortionFalloff", camera.barrelDistortionFalloff);
-			postShader.setFloat("barrelDistortion", camera.barrelDistortion);
-			postShader.setFloat("crop", camera.sensorCrop);
-		} else {
+		if (debugFbo != nullptr) {
+			// Draw a texture directly to screen
 			getDebugShader().use({ debugFbo });
 			getDebugShader().setBool("red", debugRed);
 			getDebugShader().setFloat("scale", debugScale);
+			billboard.draw();
+		} else {
+			if (postPass) {
+				// Do post effects
+				dofFbo.draw(renderDof);
+				postShader.use(dofFbo.getTextures());
+				postShader.setFloat("vignetteStrength", camera.vignetteStrength);
+				postShader.setFloat("vignetteFalloff", camera.vignetteFalloff);
+				postShader.setFloat("aspectRatio", camera.aspectRatio);
+				postShader.setFloat("vignetteDesaturation", camera.vignetteDesaturation);
+				postShader.setFloat("dispersion", camera.dispersionStrength);
+				postShader.setFloat("dispersionFalloff", camera.dispersionFalloff);
+				postShader.setFloat("barrelDistortionFalloff", camera.barrelDistortionFalloff);
+				postShader.setFloat("barrelDistortion", camera.barrelDistortion);
+				postShader.setFloat("crop", camera.sensorCrop);
+				billboard.draw();
+			} else {
+				// No post effects
+				renderDof();
+			}
 		}
-		billboard.draw();
 	}
 
 	void onEvent(Event& e) override {
@@ -212,7 +230,9 @@ public:
 				ImGui::TreePop();
 			}
 
+			ImGui::Checkbox("Post Processing Pass", &postPass);
 			if (ImGui::TreeNode("Vignette")) {
+				
 				ImGui::SliderFloat("Strength", &camera.vignetteStrength, 0.f, 4.f);
 				ImGui::SliderFloat("Falloff", &camera.vignetteFalloff, 0.f, 4.f);
 				ImGui::SliderFloat(
