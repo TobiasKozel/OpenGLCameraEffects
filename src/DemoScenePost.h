@@ -114,15 +114,25 @@ public:
 			currentDofShader->setVec2(
 				"pixelSize", 1.f / float(width), 1.f / float(height)
 			);
-			currentDofShader->setFloat("vignetteStrength", camera.vignetteStrength);
+			if (postPass) {
+				// in case there's a post pass, set all these to defaults
+				currentDofShader->setFloat("aspectRatio", 1.0);
+				currentDofShader->setFloat("vignetteStrength", 0.0);
+				currentDofShader->setFloat("vignetteDesaturation", 0.0);
+				currentDofShader->setFloat("dispersion", 0.0);
+				currentDofShader->setFloat("barrelDistortion", 0.0);
+				currentDofShader->setFloat("crop", 0.0);
+			} else {
+				currentDofShader->setFloat("aspectRatio", camera.aspectRatio);
+				currentDofShader->setFloat("vignetteStrength", camera.vignetteStrength);
+				currentDofShader->setFloat("vignetteDesaturation", camera.vignetteDesaturation);
+				currentDofShader->setFloat("dispersion", camera.dispersionStrength);
+				currentDofShader->setFloat("barrelDistortion", camera.barrelDistortion);
+				currentDofShader->setFloat("crop", camera.sensorCrop);
+			}
 			currentDofShader->setFloat("vignetteFalloff", camera.vignetteFalloff);
-			currentDofShader->setFloat("aspectRatio", camera.aspectRatio);
-			currentDofShader->setFloat("vignetteDesaturation", camera.vignetteDesaturation);
-			currentDofShader->setFloat("dispersion", camera.dispersionStrength);
 			currentDofShader->setFloat("dispersionFalloff", camera.dispersionFalloff);
 			currentDofShader->setFloat("barrelDistortionFalloff", camera.barrelDistortionFalloff);
-			currentDofShader->setFloat("barrelDistortion", camera.barrelDistortion);
-			currentDofShader->setFloat("crop", camera.sensorCrop);
 			billboard.draw();
 		};
 
