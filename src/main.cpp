@@ -11,7 +11,7 @@
 
 #include "util/Event.h"
 #include "util/Scene.h"
-#include "DemoScenePost.h"
+#include "DemoScene.h"
 
 /**
  * Callbacks
@@ -42,7 +42,7 @@ std::map<int, EventValue> keyMap = {
     { GLFW_KEY_S, {Event::BACKWARD } },
     { GLFW_KEY_A, {Event::LEFT } },
     { GLFW_KEY_D, {Event::RIGHT } },
-    { GLFW_KEY_J, {Event::RESET_TEST_CAM } },
+    { GLFW_KEY_R, {Event::RESET_TEST_CAM } },
 };
 
 void init() {
@@ -57,7 +57,7 @@ void init() {
 #endif
 
     window = glfwCreateWindow(width, height, "DOF Example", nullptr, nullptr);
-	
+    
     if (window == nullptr) {
         std::cout << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -88,21 +88,21 @@ int main() {
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
 
-    scene = new DemoScenePost(width, height);
-	
+    scene = new DemoScene(width, height);
+    
     GLC(glEnable(GL_DEPTH_TEST));
     GLC(glFrontFace(GL_CCW));
     GLC(glCullFace(GL_BACK));
     GLC(glEnable(GL_CULL_FACE));
     //GLC(glEnable(GL_BLEND));
     //GLC(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-	
+    
     while (!glfwWindowShouldClose(window)) {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-    	
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
+        
+        glClearColor(0.9f, 0.9f, 1.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (scene != nullptr) {
@@ -120,18 +120,18 @@ int main() {
         ImGui::SetNextWindowSize(ImVec2(400, 450), ImGuiCond_FirstUseEver);
         ImGui::Begin("Debug UI");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    	
+        
         if (scene != nullptr) {
             scene->debugUi();
-        	if (io.WantCaptureMouse) {
+            if (io.WantCaptureMouse) {
                 queue.clear(); // If imgui handles the event, we'll clear the queue
-        	} else {
+            } else {
                 for (auto& i : keyMap) {
                     if (glfwGetKey(window, i.first) == GLFW_PRESS) {
                         queue.push_back({ i.second.type, 0.0, i.second.value });
                     }
                 }
-        	}
+            }
             scene->update(queue, deltaTime);
             queue.clear();
         }
@@ -152,6 +152,7 @@ int main() {
     glfwDestroyWindow(window);
 
     glfwTerminate();
+    delete scene;
     return 0;
 }
 

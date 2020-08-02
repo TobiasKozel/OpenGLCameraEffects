@@ -5,10 +5,6 @@ project(dof_example)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY build/$<0:>)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY build/$<0:>)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY build/$<0:>)
-
 file(GLOB SRC_SHADERS "src/shaders/*.h")
 file(GLOB SRC_MAIN "src/*.h" "src/*.cpp")
 file(GLOB SRC_WRAP "src/wrapper/*.h")
@@ -36,10 +32,14 @@ source_group("glad" FILES ${GLAD_SRC})
 
 
 if(MSVC)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY build/$<0:>)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY build/$<0:>)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY build/$<0:>)
 	set(CMAKE_SUPPRESS_REGENERATION true) # gets rid of some of the cmake junk
 	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT dof_example)
 	# set visual studio debugger working directory
 	set_target_properties(dof_example PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "build/")
+
 else()
 	add_definitions(-DASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/build/")
 endif()

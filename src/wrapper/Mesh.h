@@ -18,7 +18,7 @@ public:
         glm::vec4 color;
         std::shared_ptr<Texture> colorTexture;
     };
-	
+    
     struct Vertex {
         glm::vec3 Position;
         glm::vec3 Normal;
@@ -77,7 +77,7 @@ public:
         GLC(glBindVertexArray(0));
     }
 
-	~Mesh() {
+    ~Mesh() {
         GLC(glDeleteBuffers(1, &EBO));
         GLC(glDeleteBuffers(1, &VBO));
         GLC(glDeleteVertexArrays(1, &VAO));

@@ -23,11 +23,11 @@
 
 
 class Model  {
-	// Bounding Box
+    // Bounding Box
     float bmin[3] = { std::numeric_limits<float>::max() };
     float bmax[3] = { -std::numeric_limits<float>::max() };
     std::vector<std::shared_ptr<Mesh>> meshes;
-	
+    
 public:
     NO_COPY(Model)
     std::string directory;
@@ -39,9 +39,9 @@ public:
 
     // draws the model, and thus all its meshes
     void draw(Shader &shader) {
-    	for (auto &i : meshes) {
+        for (auto &i : meshes) {
             i->Draw(shader);
-    	}
+        }
     }
     
 private:
@@ -68,7 +68,7 @@ private:
             return;
         }
 
-    	// Create materials and load Textures
+        // Create materials and load Textures
         for (auto &i : tinyMaterials) {
             Mesh::Material material;
             material.color = { i.diffuse[0], i.diffuse[1] , i.diffuse[2], i.dissolve };
@@ -77,14 +77,14 @@ private:
                 convertedMaterials.push_back(material);
                 continue;;
             }
-        	
+            
             // Only load the texture if it is not already loaded
             if (textures.find(i.diffuse_texname) != textures.end()) {
                 material.colorTexture = textures.find(i.diffuse_texname)->second;
                 convertedMaterials.push_back(material);
-	            continue;
+                continue;
             }
-        	
+            
             int w, h, channels;
             std::string texture_filename = directory + "/" + i.diffuse_texname;
 
@@ -92,12 +92,12 @@ private:
                 texture_filename.c_str(), &w, &h,
                 &channels, STBI_default
             );
-        	
+            
             if (image == nullptr) {
                 std::cerr << "Unable to load texture: " << texture_filename << "\n";
                 return;
             }
-        	
+            
             TextureConfig conf;
             conf.name = i.diffuse_texname;
             conf.pixels = image;
@@ -106,7 +106,7 @@ private:
             std::shared_ptr<Texture> tex(new Texture(w, h, conf));
 
             stbi_image_free(image);
-        	
+            
             textures.insert(std::make_pair(i.diffuse_texname, tex));
             material.colorTexture = tex;
             convertedMaterials.push_back(material);
@@ -117,14 +117,14 @@ private:
             std::set<int> materialIds;
             std::vector<Mesh::Vertex> vertices;
             std::vector<unsigned int> indices;
-        	
+            
             indices.reserve(shapes[s].mesh.indices.size());
             vertices.reserve(shapes[s].mesh.indices.size());
 
-        	// Iterate over each face
+            // Iterate over each face
             for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
                 const unsigned char faceVerts = shapes[s].mesh.num_face_vertices[f];
-            	// Iterate each vert of the face
+                // Iterate each vert of the face
                 for (size_t v = 0; v < faceVerts; v++) {
                     Mesh::Vertex vertex = {};
                     tinyobj::index_t idx = shapes[s].mesh.indices[vertexIndex + v];
@@ -134,22 +134,22 @@ private:
                     vertex.Normal.x = attrib.normals[0 + 3 * idx.normal_index];
                     vertex.Normal.y = attrib.normals[1 + 3 * idx.normal_index];
                     vertex.Normal.z = attrib.normals[2 + 3 * idx.normal_index];
-                	if (idx.texcoord_index != -1) {
-						vertex.TexCoords.x = attrib.texcoords[0 + 2 * idx.texcoord_index];
-	                    // For some reason the v coordinate needs to be flipped
-	                    vertex.TexCoords.y = 1 - attrib.texcoords[1 + 2 * idx.texcoord_index];
-                	}
+                    if (idx.texcoord_index != -1) {
+                        vertex.TexCoords.x = attrib.texcoords[0 + 2 * idx.texcoord_index];
+                        // For some reason the v coordinate needs to be flipped
+                        vertex.TexCoords.y = 1 - attrib.texcoords[1 + 2 * idx.texcoord_index];
+                    }
                     vertices.push_back(vertex);
                     indices.push_back(vertexIndex + v); // well that's kinda useless
                 }
-            	// Move to the next face
+                // Move to the next face
                 vertexIndex += faceVerts;
                 materialIds.insert(shapes[s].mesh.material_ids[f]);
             }
             std::vector<Mesh::Material> materials;
-        	for (auto &i : materialIds) {
+            for (auto &i : materialIds) {
                 materials.push_back(convertedMaterials[i]);
-        	}
+            }
             std::shared_ptr<Mesh> mesh(new Mesh(vertices, indices, materials[0]));
             meshes.push_back(mesh);
         }
