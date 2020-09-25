@@ -41,6 +41,8 @@ if(MSVC)
 	set_target_properties(dof_example PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "build/")
 
 else()
+	# It's a bit annoying to do relative paths and do debugging in vs code
+	# so just use a absolute one
 	add_definitions(-DASSET_PATH="${CMAKE_CURRENT_SOURCE_DIR}/build/")
 endif()
 
